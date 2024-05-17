@@ -3,17 +3,20 @@ USER $APP_UID
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["ValidationService/ValidationService.csproj", "ValidationService/"]
-RUN dotnet restore "ValidationService/ValidationService.csproj"
+
+ARG NUGET_API_KEY
+RUN dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json --name github --username trumpee --password $NUGET_API_KEY --store-password-in-clear-text
+RUN dotnet restore "ValidationService/ValidationService.csproj" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/trumpee/index.json"
+
 COPY . .
 WORKDIR "/src/ValidationService"
-RUN dotnet build "ValidationService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "ValidationService.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "ValidationService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ValidationService.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
