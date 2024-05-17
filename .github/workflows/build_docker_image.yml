@@ -34,6 +34,6 @@ jobs:
 
             - name: Build and Push Docker Image
               run: |
-                  docker build -t ghcr.io/trumpee/trumpee-${{ env.lowercase_repo_name }}:${{ github.event.release.tag_name}} --build-arg NUGET_API_KEY=${{ secrets.GITHUB_TOKEN }} -f ./${{ github.event.repository.name }}/Dockerfile
+                  docker build -f ./${{ github.event.repository.name }}/Dockerfile -t ghcr.io/trumpee/trumpee-${{ env.lowercase_repo_name }}:${{ github.event.release.tag_name}} --build-arg NUGET_API_KEY=${{ secrets.GITHUB_TOKEN }} .
                   docker tag ghcr.io/trumpee/trumpee-${{ env.lowercase_repo_name }}:${{ github.event.release.tag_name}} ghcr.io/trumpee/trumpee-${{ env.lowercase_repo_name }}:latest
                   docker push ghcr.io/trumpee/trumpee-${{ env.lowercase_repo_name }} --all-tags 
