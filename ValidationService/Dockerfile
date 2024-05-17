@@ -5,11 +5,11 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY . ./
+COPY ./ValidationService/ ./
 
 ARG NUGET_API_KEY
 RUN dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json --name github --username trumpee --password $NUGET_API_KEY --store-password-in-clear-text
-RUN dotnet restore "ValidationService.csproj" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/trumpee/index.json"
+RUN ls -alF && dotnet restore "ValidationService.csproj" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/trumpee/index.json"
 RUN dotnet build "ValidationService.csproj" -c Release -o /app/build --no-restore
 
 FROM build AS publish
