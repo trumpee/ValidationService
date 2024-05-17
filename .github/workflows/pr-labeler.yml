@@ -1,0 +1,39 @@
+﻿name: Pull Request Labeling
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  triage:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          dot: true
+          sync-labels: true
+
+  size-label:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: size-label
+        uses: "pascalgn/size-label-action@v0.5.0"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          sizes: >
+            {
+              "0": "XS",
+              "25": "S",
+              "50": "M",
+              "100": "L",
+              "400": "XL",
+              "1000": "XXL"
+            }

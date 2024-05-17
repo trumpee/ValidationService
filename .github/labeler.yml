@@ -1,0 +1,14 @@
+﻿documentation:
+  - 'readme.md'
+  - './*.md'
+
+ci/cd:
+  - '.github/workflows/*'
+
+repo-configs:
+  - '*'
+  - '.gitignore'
+  - '.github/*'
+
+assignment:
+  - 'src/**'

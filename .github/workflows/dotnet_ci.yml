@@ -1,0 +1,30 @@
+﻿name: Dotnet Continuous Integration Pipeline
+
+on:
+  push:
+    paths:
+      - '**/src/**'
+
+jobs:
+  build:
+    if: github.event.repository.name != 'service-template'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Add NuGet source
+        run: dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json --username trumpee --password ${{ secrets.SECRET_TOKEN }} --store-password-in-clear-text
+
+      - name: Build Solution
+        run:  dotnet build -c Release --source "https://nuget.pkg.github.com/trumpee/index.json" --source "https://api.nuget.org/v3/index.json" ${{ github.event.repository.name }}.sln
+
+      - name: Test
+        run: dotnet test --no-build -c Release -v normal ${{ github.event.repository.name }}.sln
