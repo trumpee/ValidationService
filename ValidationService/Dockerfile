@@ -5,7 +5,7 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY . ./
+COPY ./ValidationService/ ./
 
 ARG NUGET_API_KEY
 RUN dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json --name github --username trumpee --password $NUGET_API_KEY --store-password-in-clear-text
