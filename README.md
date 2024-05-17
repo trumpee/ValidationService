@@ -1,8 +1,10 @@
-﻿## .NET Service Development Guidelines
+<h1 align="center">🔔 Trumpee 🔔</h1>
 
-1. **Consistent Naming Convention:** Ensure that the repository name **matches** the solution file name (excluding
-   the `.sln` extension). This helps maintain clarity and organization within your project structure.
-2. **Streamlined Pipeline Management:** Before pushing a service to GitHub, **carefully review and remove** any
-   pipelines that are not relevant to the specific service being deployed. This repository is designed to include a
-   comprehensive set of pipelines, but not all of them will be applicable to every service. By removing unused
-   pipelines, you'll keep your workflow focused and efficient.
+<p align="center">
+  <strong>Trumpee</strong> is a 🚀 distributed notification system 📢
+  <br/>
+  <br/>
+  <br/>
+  
+  <img width="250" height="250" src="https://github.com/trumpee/gateway/assets/67170413/1641a148-c069-4289-8846-b7f1084ff5c8" alt="Trumpee Logo"/>
+</p>
