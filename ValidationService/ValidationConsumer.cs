@@ -1,22 +1,14 @@
 ﻿using MassTransit;
-using Trumpee.MassTransit;
 using Trumpee.MassTransit.Messages.Notifications;
+using ValidationService.Application.Services;
 
 namespace ValidationService;
 
-public class ValidationConsumer(OffenciveContentValidationService validator)
+public class ValidationConsumer(INotificationContentValidationService validator)
     : IConsumer<Notification>
 {
     public async Task Consume(ConsumeContext<Notification> context)
     {
-        var isOffensive = validator.IsOffencive(context.Message);
-        if (!isOffensive)
-        {
-            await context.Send(new Uri(QueueNames.PrioritizationQueueName), context.Message);
-        }
-        else
-        {
-            await context.Send(new Uri("queue:offensive"), context.Message);
-        }
+        await validator.ProcessNotification(context.Message);
     }
 }

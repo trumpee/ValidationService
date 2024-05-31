@@ -8,12 +8,22 @@ WORKDIR /src
 COPY ./ ./
 
 ARG NUGET_API_KEY
-RUN dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json --name github --username trumpee --password $NUGET_API_KEY --store-password-in-clear-text
-RUN ls -alF && dotnet restore "ValidationService.sln" --source "https://api.nuget.org/v3/index.json" --source "https://nuget.pkg.github.com/trumpee/index.json"
-RUN dotnet build "ValidationService.sln" -c Release -o /app/build --no-restore
+ARG SOLUTION_NAME
+
+RUN dotnet nuget add source https://nuget.pkg.github.com/trumpee/index.json \
+    --name github \
+    --username trumpee \
+    --password $NUGET_API_KEY \
+    --store-password-in-clear-text
+
+RUN dotnet restore "$SOLUTION_NAME.sln" \
+    --source "https://api.nuget.org/v3/index.json" \
+    --source "https://nuget.pkg.github.com/trumpee/index.json"
+
+RUN dotnet build "$SOLUTION_NAME.sln" -c Release -o /app/build --no-restore
 
 FROM build AS publish
-RUN dotnet publish "ValidationService.sln" -c Release -o /app/publish
+RUN dotnet publish "$SOLUTION_NAME.sln" -c Release -o /app/publish --self-contained -r linux-x64
 
 FROM base AS final
 WORKDIR /app
