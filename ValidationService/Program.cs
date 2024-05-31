@@ -2,11 +2,15 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenAI.Extensions;
 using Serilog;
 using Serilog.Events;
 using Trumpee.MassTransit;
 using Trumpee.MassTransit.Configuration;
 using ValidationService;
+using ValidationService.Application;
+using ValidationService.Application.Services;
+using ValidationService.Infrastructure.OpenAi;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -33,8 +37,9 @@ static IHostBuilder CreateHostBuilder(string[] args)
         .UseSerilog()
         .ConfigureServices((host, services) =>
         {
-            services.AddScoped<OffensiveContentValidator>();
-            services.AddScoped<OffenciveContentValidationService>();
+            services.AddOpenAIService();
+            services.AddScoped<INotificationContentValidator, GptModelValidator>();
+            services.AddScoped<INotificationContentValidationService, NotificationContentValidationService>();
 
             var rabbitTopologyBuilder = new RabbitMqTransportConfigurator();
             rabbitTopologyBuilder.AddExternalConfigurations(x =>
