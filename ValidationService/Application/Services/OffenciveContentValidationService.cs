@@ -1,9 +1,9 @@
-using System.Text.Json;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Trumpee.MassTransit;
+using Trumpee.MassTransit.Messages.Analytics;
+using Trumpee.MassTransit.Messages.Analytics.Validation;
 using Trumpee.MassTransit.Messages.Notifications;
-using Trumpee.MassTransit.Messages.Notifications.Validation;
 using ValidationService.Application.Extensions;
 
 namespace ValidationService.Application.Services;
@@ -39,8 +39,16 @@ public class NotificationContentValidationService(
 
     private async Task HandleOffenciveMessage(Notification notification, ValidationResult validationResult)
     {
-        var analyticsEvent = Validation.Failed(nameof(ValidationConsumer),
-            notification.NotificationId, JsonSerializer.Serialize(validationResult));
+        var validationInfo = new ValidationInfoDto()
+        {
+            Explanation = validationResult.Explanation,
+            Offensiveness = validationResult.Offensiveness,
+            OffensiveElements = validationResult.OffensiveElements,
+            SuggestedAlternative = validationResult.SuggestedAlternative
+        };
+
+        var analyticsEvent = Validation.Failed(
+            "Trumpee Validation Service", notification.NotificationId, validationInfo);
 
         await Task.WhenAll(
             SendToOffensiveQueue(notification),
@@ -50,7 +58,8 @@ public class NotificationContentValidationService(
 
     private async Task HandleSafeMessage(Notification notification)
     {
-        var analyticsEvent = Validation.Passed(nameof(NotificationContentValidationService), notification.NotificationId);
+        var analyticsEvent = Validation.Passed(
+            "Trumpee Validation Service", notification.NotificationId);
 
         await Task.WhenAll(
             SendToPrioritizationQueue(notification),
@@ -60,7 +69,7 @@ public class NotificationContentValidationService(
 
     private async Task SendToPrioritizationQueue(Notification notification)
     {
-        var queue = await sendEndpoint.GetQueue(QueueNames.PrioritizationQueueName);
+        var queue = await sendEndpoint.GetQueue(QueueNames.Services.PrioritizationQueueName);
         await queue.Send(notification);
     }
 
@@ -71,9 +80,10 @@ public class NotificationContentValidationService(
     }
 
     private async Task SendToAnalyticsQueue<TPayload>(
-        Trumpee.MassTransit.Messages.Event<TPayload> analyticsEvent)
+        AnalyticsEvent<TPayload> analyticsEvent)
     {
-        var queue = await sendEndpoint.GetQueue("analytics");
+        var queue = await sendEndpoint.GetQueue(
+            QueueNames.Analytics.Notifications(typeof(TPayload)));
         await queue.Send(analyticsEvent);
     }
 }
